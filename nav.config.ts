@@ -3,13 +3,13 @@ import { IConfig } from './src/types'
 // 网站 LOGO 替换根目录下的 logo.png， 务必为 png 后缀
 const c: IConfig = {
   // [必填], 请填写您的仓库地址
-  gitRepoUrl: 'https://github.com/xjh22222228/nav',
+  gitRepoUrl: 'https://github.com/Alone95/nav',
 
   // 路由是否Hash模式, 如果是部署在github pages 务必设为 true
   hashMode: true,
 
   // 您的网站地址，这对于SEO很重要
-  homeUrl: 'https://nav3.cn',
+  homeUrl: 'https://nav.alone95.cn',
 
   // 网站标题
   title: '发现导航 - 精选实用导航网站',
@@ -18,10 +18,10 @@ const c: IConfig = {
   description: '发现导航 - 精选实用导航网站',
 
   // 网站关键字
-  keywords: '导航,前端资源,社区站点,设计师,实用工具,学习资源,运营,网络安全,node.js',
+  keywords: '导航,前后端资源,社区站点,设计师,实用工具,学习资源,运营,网络安全,node.js',
 
   // 默认主题: Light | Sim
-  theme: 'Light',
+  theme: 'Sim',
 
   // 搜索引擎列表, 为空时不显示搜索引擎
   // 自定义引擎 icon 请使用网络图标
@@ -71,7 +71,7 @@ const c: IConfig = {
 
   // 百度统计地址
   // https://tongji.baidu.com/web/welcome/login
-  baiduStatisticsUrl: 'https://hm.baidu.com/hm.js?4582be7af7e7c95ef75351e07c6c32ba',
+  baiduStatisticsUrl: 'https://hm.baidu.com/hm.js?f8dbdd676600bbdceff07abf635322f9',
 
   // CNZZ 统计地址
   // https://www.cnzz.com/o_index.php?
