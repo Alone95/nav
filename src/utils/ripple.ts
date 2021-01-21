@@ -1,5 +1,8 @@
+// Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+
 import { annotate } from 'rough-notation'
 import { queryString } from './index'
+import { websiteList } from '../store'
 
 let ANNOTATE_EQUEUE = []
 
@@ -19,9 +22,11 @@ export function setAnnotate(querySelector = '.top-nav .ripple-btn') {
   ANNOTATE_EQUEUE = []
   const { page } = queryString()
 
+  if (page >= websiteList.length || page < 0) return
+
   const annotation = annotate(elList[page], {
     type: 'underline',
-    color: 'red',
+    color: '#f9826c',
     padding: 3,
     strokeWidth: 3
   })

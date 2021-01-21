@@ -1,5 +1,7 @@
+// Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+
 import { Component, Input } from '@angular/core'
-import { FOOTER_DESC } from '../../../config'
+import config from '../../../nav.config'
 import { totalWeb } from '../../utils'
 
 @Component({
@@ -8,7 +10,7 @@ import { totalWeb } from '../../utils'
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent {
-  FOOTER_DESC: string = FOOTER_DESC;
+  footerContent: string = config.footerContent;
   totalWeb: number = totalWeb()
 
   @Input() className: string

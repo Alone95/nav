@@ -1,6 +1,9 @@
-import { Component, Output, EventEmitter } from '@angular/core'
-import { SEARCH_ENGINE_LIST } from '../../../config'
+// Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+
+import config from '../../../nav.config'
+import { Component } from '@angular/core'
 import { getDefaultSearchEngine, setDefaultSearchEngine, queryString } from '../../utils'
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-search-engine',
@@ -8,19 +11,18 @@ import { getDefaultSearchEngine, setDefaultSearchEngine, queryString } from '../
   styleUrls: ['./search-engine.component.scss']
 })
 export class SearchEngineComponent {
-  SEARCH_ENGINE_LIST = SEARCH_ENGINE_LIST
-
+  searchEngineList = config.searchEngineList
   currentEngine = getDefaultSearchEngine()
-
   showEngine = false
-
   keyword = queryString().q
 
-  @Output() onSearch = new EventEmitter<string>()
+  constructor (private router: Router) {}
 
   inputFocus() {
-    const inputEl = document.getElementById('search-engine-input')
-    inputEl?.focus?.()
+    setTimeout(() => {
+      const inputEl = document.getElementById('search-engine-input')
+      inputEl?.focus?.()
+    }, 100)
   }
 
   ngAfterViewInit() {
@@ -32,7 +34,7 @@ export class SearchEngineComponent {
   }
 
   toggleEngine(e?: Event, isShow?: boolean) {
-    if (this.SEARCH_ENGINE_LIST.length <= 1) return
+    if (this.searchEngineList.length <= 1) return
 
     if (e) {
       e.stopPropagation()
@@ -43,7 +45,7 @@ export class SearchEngineComponent {
   }
 
   clickEngineItem(index) {
-    this.currentEngine = SEARCH_ENGINE_LIST[index]
+    this.currentEngine = config.searchEngineList[index]
     this.toggleEngine()
     this.inputFocus()
     setDefaultSearchEngine(this.currentEngine)
@@ -54,7 +56,13 @@ export class SearchEngineComponent {
       window.open(this.currentEngine.url + this.keyword)
     }
     
-    this.onSearch.emit(this.keyword)
+    const params = queryString()
+    this.router.navigate([this.router.url.split('?')[0]], {
+      queryParams: {
+        ...params,
+        q: this.keyword
+      }
+    })
   }
 
   onKey(event: KeyboardEvent) {

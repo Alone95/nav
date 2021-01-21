@@ -1,130 +1,106 @@
 <div class="index-wrapper">
-  <main class="homepage container">
-    <div
-      class="fixed-collapse"
-      (click)="onCollapseAll()"
-      [class.active]="websiteList[page].nav[id].collapsed"
+  <main class="homepage dark-border-color">
+    <app-fixbar
+      (onCollapse)="onCollapseAll()"
+      [collapsed]="collapsed()"
+      selector=".main"
+      [randomBg]="true"
     >
-      <i class="iconfont iconweibiaoti25"></i>
-    </div>
+    </app-fixbar>
 
-    <nav class="top-nav user-select-none">
+    <nav class="top-nav user-select-none dark-border-color dark-bg">
       <a 
         *ngFor="let item of websiteList; let i = index;" 
         (click)="handleCilckTopNav(i)" 
         [class.active]="page === i" 
-        class="ripple-btn"
+        [class.dark-text-active]="page === i" 
+        class="ripple-btn dark-text"
       >
-        {{ item.title }}
+        <app-dropdown delIconStyle="top: -8px;right: -16px;" [oIdx]="i">
+          {{ item.title }}
+        </app-dropdown>
       </a>
     </nav>
 
-    <section class="index-section user-select-none">
-      <aside class="sidebar" id="sidebar">
-        <ul>
+    <section class="index-section user-select-none dark-bg">
+      <aside class="sidebar dark-bg dark-border-color" id="sidebar">
+        <ul *ngIf="websiteList[page]">
           <li 
-            class="tag" 
-            *ngFor="let item of websiteList[page].nav; let i = index" 
+            class="tag dark-text" 
             [class.active]="id === i" 
+            [class.dark-item-active]="id === i" 
             (click)="handleSidebarNav(i)"
+            *ngFor="let item of websiteList[page].nav; let i = index" 
           >
-            <a class="ripple-btn" *ngIf="item.title">{{ item.title }}</a>
+            <app-dropdown [oIdx]="page" [twoIdx]="i">
+              <div class="ripple-btn">{{ item.title }}</div>
+            </app-dropdown>
           </li>
         </ul>
       </aside>
 
-      <div class="main">
-        <app-search-engine (onSearch)="onSearch($event)"></app-search-engine>
+      <div class="main dark-scrollbar">
+        <app-search-engine></app-search-engine>
  
-        <ul *ngIf="currentList.length && currentList[0].nav">
+        <ul *ngIf="currentList.length > 0; else noData">
           <li *ngFor="let item of currentList; let i=index">
-            <div class="title-wrapper" *ngIf="item.title">
-              <h2 class="block-title">
-                <span
-                  (click)="onCollapse(item, i)"
-                  class="cursor-pointer"
-                >
-                  {{ item.title }} x {{ item.nav.length }}
-                </span>
-
-                <i
-                  class="iconfont iconjiantouarrow483 down-arrow"
-                  [class.active]="item.collapsed"
-                  (click)="onCollapse(item, i)"
-                >
-                </i>
-              </h2>
-
-              <img
-                *ngIf="item.icon && item.showSideIcon !== false"
-                [src]="item.icon"
-                class="side-logo"
-                (error)="onSideLogoError($event)"
-              />
+            <div class="title-wrapper dark-border-color" *ngIf="item.title">
+              <app-dropdown delIconStyle="right: -20px;" [oIdx]="page" [twoIdx]="id" [threeIdx]="i">
+                <h2 class="block-title">
+                  <app-logo
+                    [src]="item.icon"
+                    [name]="item.title"
+                    colour="#ff4d4f"
+                  >
+                  </app-logo>
+                  <span
+                    (click)="onCollapse(item, i)"
+                    class="cursor-pointer dark-primary"
+                    style="align-self: center; margin-left: 10px;"
+                  >
+                    {{ item.title }} x {{ item.nav.length }}
+                  </span>
+  
+                  <i
+                    class="iconfont iconjiantouarrow483 down-arrow"
+                    [class.active]="item.collapsed"
+                    (click)="onCollapse(item, i)"
+                  >
+                  </i>
+                </h2>
+              </app-dropdown>
             </div>
 
             <div class="row" *ngIf="!item.collapsed">
-              <div class="click-btn" *ngFor="let el of item.nav">
-                <a [href]="el.url" target="_blank" rel="noopener noreferer">
-                  <div class="top">
-                    <img
-                      *ngIf="el.icon || item.icon || websiteList[page].nav[id].icon; else icon"
-                      [src]="el.icon || item.icon || websiteList[page].nav[id].icon"
-                      alt=""
-                      class="icon"
-                      (error)="onImgError($event)"
-                    >
-                    <ng-template #icon>
-                      <span class="icon"></span>
-                    </ng-template>
-                    <em class="name" [innerHtml]="el.name"></em>
-                  </div>
-                  <div class="desc" [innerHtml]="el.desc"></div>
-                </a>
-
-                <div class="mark" *ngIf="el.language && el.language.length > 0">
-                  <div class="button-box">
-                    <a 
-                      [href]="el.language[0]" 
-                      class="zh" 
-                      target="_blank" 
-                      *ngIf="el.language[0]" 
-                      rel="noopener noreferer"
-                    >
-                      {{ language[0] }}
-                    </a>
-                    <a 
-                      [href]="el.language[1]" 
-                      class="zh" 
-                      target="_blank" 
-                      *ngIf="el.language[1]" 
-                      rel="noopener noreferer"
-                    >
-                      {{ language[1] }}
-                    </a>
-                    <a 
-                      [href]="el.language[2]" 
-                      class="zh" 
-                      target="_blank" 
-                      *ngIf="el.language[2]" 
-                      rel="noopener noreferer"
-                    >
-                      {{ language[2] }}
-                    </a>
-                  </div>
-                </div>
+              <div class="click-btn dark-border-color" *ngFor="let el of item.nav; let idx=index">
+                <app-dropdown [oIdx]="page" [twoIdx]="id" [threeIdx]="i" [fourIdx]="idx">
+                  <a [href]="el.url" target="_blank" rel="noopener noreferer">
+                    <div class="top">
+                      <app-logo
+                        [src]="el.icon"
+                        [name]="el.name"
+                      >
+                      </app-logo>
+                      <em class="name dark-title" [innerHtml]="el.name" [title]="el.name"></em>
+                    </div>
+                    <div class="desc dark-border-color dark-text" [innerHtml]="el.desc"></div>
+                  </a>
+  
+                  <app-multiple-site [dataSource]="el"></app-multiple-site>
+                </app-dropdown>
               </div>
             </div>
           </li>
         </ul>
-  
-        <app-no-data
-          *ngIf="currentList.length && currentList[0].nav && !currentList[0].nav.length"
-        >
-        </app-no-data>
+        
+        <ng-template #noData>
+          <app-no-data></app-no-data>
+        </ng-template>
       </div>
     </section>
   </main>
 
   <app-footer></app-footer>
 </div>
+
+<div class="layer-bg dark-bg"></div>

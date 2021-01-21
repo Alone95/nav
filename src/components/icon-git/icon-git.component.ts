@@ -1,5 +1,7 @@
+// Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+
 import { Component, OnInit } from '@angular/core';
-import { GIT_REPO_URL } from '../../../config';
+import config from '../../../nav.config';
 
 @Component({
   selector: 'app-icon-git',
@@ -8,7 +10,7 @@ import { GIT_REPO_URL } from '../../../config';
 })
 export class IconGitComponent implements OnInit {
 
-  GIT_REPO_URL: string = GIT_REPO_URL
+  gitRepoUrl: string = config.gitRepoUrl
 
   constructor() { }
 

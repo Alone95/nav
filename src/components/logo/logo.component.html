@@ -1,0 +1,19 @@
+<img
+  *ngIf="src && !hasError; else noSrc"
+  [src]="src"
+  class="icon dark-border-color"
+  (error)="onImgError($event)"
+  [ngStyle]="{ width: (size || 35) + 'px', height: (size || 35) + 'px' }"
+>
+
+<ng-template #noSrc>
+  <nz-avatar
+    [nzSize]="size || 35"
+    [nzGap]="gap"
+    [ngStyle]="{ 'background-color': colour || color }"
+    [nzText]="name ? name[0] : ''"
+    nzSize="large"
+    style="vertical-align: middle;"
+  >
+  </nz-avatar>
+</ng-template>

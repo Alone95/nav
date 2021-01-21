@@ -1,7 +1,17 @@
-import WEBSITE_LIST from '../../data'
+// Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+
 import qs from 'qs'
-import { BACKGROUND_LINEAR, ERROR_ICON, SEARCH_ENGINE_LIST } from '../../config'
+import config from '../../nav.config'
+import Clipboard from 'clipboard'
 import { INavProps, ISearchEngineProps } from '../types'
+import * as db from '../../data/db.json'
+import { Target } from '@angular/compiler'
+
+export const websiteList = getWebsiteList()
+
+let total = 0
+const { lightThemeConfig, searchEngineList } = config
+const { backgroundLinear } = lightThemeConfig
 
 export function debounce(func, wait, immediate) {
   let timeout
@@ -66,10 +76,13 @@ export function fuzzySearch(navList: INavProps[], keyword: string) {
 
   f()
 
+  if (searchResultList[0].nav.length <= 0) {
+    return []
+  }
+
   return searchResultList
 }
 
-let total = 0
 export function totalWeb(): number {
   if (total) {
     return total
@@ -86,19 +99,25 @@ export function totalWeb(): number {
       }
     }
   }
-  r(WEBSITE_LIST)
+  r(websiteList)
 
   return total
 }
 
+let randomTimer
 export function randomBgImg() {
+  if (isDark()) return
+
+  clearInterval(randomTimer)
+
   const el = document.createElement('div')
+  el.id = 'random-light-bg'
   el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:-3;transition: 1s linear;'
-  el.style.backgroundImage = BACKGROUND_LINEAR[randomInt(BACKGROUND_LINEAR.length)]
+  el.style.backgroundImage = backgroundLinear[randomInt(backgroundLinear.length)]
   document.body.appendChild(el)
 
   function setBg() {
-    const randomBg = BACKGROUND_LINEAR[randomInt(BACKGROUND_LINEAR.length)]
+    const randomBg = backgroundLinear[randomInt(backgroundLinear.length)]
     el.style.opacity = '.3'
     setTimeout(() => {
       el.style.backgroundImage = randomBg
@@ -106,11 +125,7 @@ export function randomBgImg() {
     }, 1000)
   }
 
-  setInterval(setBg, 10000)
-}
-
-export function onImgError(e: any) {
-  e.target.src = ERROR_ICON
+  randomTimer = setInterval(setBg, 10000)
 }
 
 export function queryString() {
@@ -119,25 +134,26 @@ export function queryString() {
   const parseQs = qs.parse(search)
   let id = parseInt(parseQs.id) || 0
   let page = parseInt(parseQs.page) || 0
+  let localLocation = {}
 
   if (parseQs.id === undefined && parseQs.page === undefined) {
     try {
       const location = window.localStorage.getItem('location')
       if (location) {
-        return JSON.parse(location)
+        localLocation = JSON.parse(location)
       }
     } catch {}
   }
 
-  if (page > WEBSITE_LIST.length - 1) {
-    page = WEBSITE_LIST.length - 1;
+  if (page > websiteList.length - 1) {
+    page = websiteList.length - 1;
     id = 0;
   } else {
     page = page;
-    if (id <= WEBSITE_LIST[page].nav.length - 1) {
+    if (id <= websiteList[page].nav.length - 1) {
       id = id;
     } else {
-      id = WEBSITE_LIST[page].nav.length - 1;
+      id = websiteList[page].nav.length - 1;
     }
   }
 
@@ -145,19 +161,46 @@ export function queryString() {
     ...parseQs,
     q: parseQs.q || '',
     id,
-    page
+    page,
+    ...localLocation
   }
 }
 
+export function adapterWebsiteList(websiteList: any[], parentItem?: any) {
+  for (let i = 0; i < websiteList.length; i++) {
+    const item = websiteList[i]
+
+    if (Array.isArray(item.nav)) {
+      adapterWebsiteList(item.nav, item)
+    }
+
+    if (item.url) {
+      if (!item.icon && parentItem.icon) {
+        item.icon = parentItem.icon
+      }
+    }
+  }
+
+  return websiteList;
+}
+
 export function getWebsiteList() {
-  let webSiteList = WEBSITE_LIST
+  let webSiteList = adapterWebsiteList((db as any).default)
   const scriptElAll = document.querySelectorAll('script')
   const scriptUrl = scriptElAll[scriptElAll.length - 1].src
   const storageScriptUrl = window.localStorage.getItem('s_url')
 
-  // 更新数据
+  // 检测到网站更新，清除缓存
   if (storageScriptUrl !== scriptUrl) {
-    window.localStorage.clear()
+    const whiteList = ['token', 'IS_DARK']
+    const len = window.localStorage.length
+    for (let i = 0; i < len; i++) {
+      const key = window.localStorage.key(i)
+      if (whiteList.includes(key)) {
+        continue
+      }
+      window.localStorage.removeItem(key)
+    }
     window.localStorage.setItem('s_url', scriptUrl)
     return webSiteList
   }
@@ -174,13 +217,13 @@ export function getWebsiteList() {
 }
 
 export function setWebsiteList(v?: INavProps[]) {
-  v = v || WEBSITE_LIST
+  v = v || websiteList
 
   window.localStorage.setItem('website', JSON.stringify(v))
 }
 
-export function toggleCollapseAll(websiteList?: INavProps[]): boolean {
-  websiteList = websiteList || WEBSITE_LIST
+export function toggleCollapseAll(wsList?: INavProps[]): boolean {
+  wsList = wsList || websiteList
 
   const { page, id } = queryString()
   const collapsed = !websiteList[page].nav[id].collapsed
@@ -207,7 +250,7 @@ export function setLocation() {
 }
 
 export function getDefaultSearchEngine(): ISearchEngineProps {
-  let DEFAULT = (SEARCH_ENGINE_LIST[0] || {}) as ISearchEngineProps
+  let DEFAULT = (searchEngineList[0] || {}) as ISearchEngineProps
   try {
     const engine = window.localStorage.getItem('engine');
     if (engine) {
@@ -221,7 +264,74 @@ export function setDefaultSearchEngine(engine: ISearchEngineProps) {
   window.localStorage.setItem('engine', JSON.stringify(engine))
 }
 
-export function imgErrorInRemove(e) {
-  const el = e.currentTarget;
-  el?.parentNode?.removeChild?.(el)
+export function isDark(): boolean {
+  const storageVal = window.localStorage.getItem('IS_DARK')
+  const darkMode = window?.matchMedia?.('(prefers-color-scheme: dark)')?.matches
+
+  if (!storageVal && darkMode) {
+    return darkMode
+  }
+
+  return Boolean(Number(storageVal))
+}
+
+export async function getLogoUrl(url: string): Promise<boolean|string> {
+  try {
+    const c = ['/favicon.png', '/favicon.svg', '/favicon.jpg', '/favicon.ico', '/logo.png']
+    const { origin } = new URL(url)
+
+    const promises = c.map(url => {
+      const iconUrl = origin + url
+      return new Promise(resolve => {
+        try {
+          const img = document.createElement('img')
+          img.src = iconUrl
+          img.style.display = 'none'
+          img.onload = () => {
+            img.parentNode.removeChild(img)
+            resolve(iconUrl)
+          }
+          img.onerror = () => {
+            img.parentNode.removeChild(img)
+            resolve(false)
+          }
+          document.body.append(img)
+        } catch (error) {
+          resolve(false)
+        }
+      }) 
+    })
+
+    const all = await Promise.all<any>(promises)
+    for (let i = 0; i < all.length; i++) {
+      if (all[i]) {
+        return all[i]
+      }
+    }
+    
+  } catch {
+    return null
+  }
+}
+
+export function copyText(el: any, text: string): Promise<boolean> {
+  const target = el.target
+  const ranId = 'copy-' + randomInt(99999999)
+  target.id = ranId
+  target.setAttribute('data-clipboard-text', text)
+
+  return new Promise(resolve => {
+    const clipboard = new Clipboard(`#${ranId}`)
+    clipboard.on('success', function() {
+      clipboard?.destroy?.()
+      target.removeAttribute('id')
+      resolve(true)
+    });
+  
+    clipboard.on('error', function() {
+      clipboard?.destroy?.()
+      target.removeAttribute('id')
+      resolve(false)
+    });
+  })
 }
