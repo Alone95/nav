@@ -9,9 +9,9 @@ import { NzMessageService } from 'ng-zorro-antd/message'
 import { NzNotificationService } from 'ng-zorro-antd/notification'
 import { getToken } from '../../utils/user'
 import { updateFileContent } from '../../services'
-import { websiteList, isEditing } from '../../store'
+import { websiteList } from '../../store'
 import { DB_PATH, KEY_MAP, VERSION } from '../../constants'
-import { Router } from '@angular/router'
+import { Router, ActivatedRoute } from '@angular/router'
 import { setAnnotate } from '../../utils/ripple'
 
 @Component({
@@ -20,9 +20,7 @@ import { setAnnotate } from '../../utils/ripple'
   styleUrls: ['./index.component.scss']
 })
 export class FixbarComponent {
-
   @Input() collapsed: boolean
-  @Input() randomBg: boolean
   @Input() selector: string
   @Output() onCollapse = new EventEmitter()
 
@@ -31,7 +29,6 @@ export class FixbarComponent {
   showCreateModal = false
   syncLoading = false
   isLogin = !!getToken()
-  isEditing = isEditing
   themeList = [
     {
       name: '切换到 Light',
@@ -40,6 +37,10 @@ export class FixbarComponent {
     {
       name: '切换到 Sim',
       url: '/sim'
+    },
+    {
+      name: '切换到 Side',
+      url: '/side'
     }
   ]
 
@@ -47,7 +48,8 @@ export class FixbarComponent {
     private message: NzMessageService,
     private notification: NzNotificationService,
     private modal: NzModalService,
-    private router: Router
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -73,10 +75,6 @@ export class FixbarComponent {
       e.preventDefault()
       this.viewInfo()
     })
-    hotkeys(KEY_MAP.edit, (e) => {
-      e.preventDefault()
-      this.isEditing.value = !this.isEditing.value
-    })
     hotkeys(KEY_MAP.dark, (e) => {
       e.preventDefault()
       this.toggleMode()
@@ -84,7 +82,7 @@ export class FixbarComponent {
   }
 
   viewInfo() {
-    const date = document.getElementById('BUILD-DATE-NAV')?.dataset?.date
+    const date = document.getElementById('META-NAV')?.dataset?.date
 
     this.modal.info({
       nzWidth: 500,
@@ -118,13 +116,10 @@ export class FixbarComponent {
     this.router.navigate([theme.url], {
       queryParams: queryString()
     })
+    this.removeBackground()
     setTimeout(() => {
       setAnnotate()
     }, 100)
-  }
-
-  toggleEditMode() {
-    this.isEditing.value = !this.isEditing.value
   }
 
   goTop() {
@@ -146,22 +141,32 @@ export class FixbarComponent {
     this.onCollapse.emit()
   }
 
+  removeBackground() {
+    const el = document.getElementById('random-light-bg')
+    el?.parentNode?.removeChild?.(el)
+  }
+
   toggleMode() {
     this.isDark = !this.isDark
     window.localStorage.setItem('IS_DARK', String(Number(this.isDark)))
     document.body.classList.toggle('dark-container')
 
     if (this.isDark) {
-      const el = document.getElementById('random-light-bg')
-      el?.parentNode?.removeChild?.(el)
+      this.removeBackground()
       this.toggleZorroDark(true)
     } else {
-      this.randomBg && randomBgImg()
+      const { data } = this.activatedRoute.snapshot
+      data?.renderLinear && randomBgImg()
       this.toggleZorroDark(false)
     }
   }
 
   toggleModal() {
+    if (this.isLogin) {
+      this.removeBackground()
+      this.router.navigate(['admin'])
+      return
+    }
     this.showCreateModal = !this.showCreateModal
   }
 

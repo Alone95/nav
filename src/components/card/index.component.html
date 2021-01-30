@@ -1,0 +1,132 @@
+<!-- 网站 -->
+<div *ngIf="getEditType() === EditType.isWebsite; else card" class="container">
+  <nz-card
+    [nzActions]="isLogin ? [actionSetting, actionEdit, actionEllipsis] : [actionSetting, actionEdit]"
+    nzSize="small"
+    nzHoverable
+    nzType="inner"
+  >
+    <a [href]="dataSource.url" target="_blank" rel="noreferer noopener">
+      <nz-card-meta
+        [nzTitle]="title"
+        [nzAvatar]="avatarTemplate"
+        [nzDescription]="description"
+      >
+      </nz-card-meta>
+
+      <div style="opacity: 0;height: 10px;">&nbsp;</div>
+      <div class="desc dark-text">{{ dataSource.desc }}</div>
+    </a>
+
+    <div style="margin-top: 15px;">
+      <nz-tag *ngFor="let key of objectKeys(dataSource.urls)" [nzColor]="tagMap[key].color || '#2db7f5'">
+        <a [href]="dataSource.urls[key]" target="_blank">{{ key }}</a>
+      </nz-tag>
+    </div>
+  </nz-card>
+
+  <ng-template #title>
+    <div [innerHTML]="dataSource.name"></div>
+  </ng-template>
+  <ng-template #avatarTemplate>
+    <app-logo [src]="dataSource.icon" [name]="dataSource.name"></app-logo>
+  </ng-template>
+  <ng-template #actionSetting>
+    <div nz-tooltip [nzTooltipTitle]="copyUrlDone ? '复制成功' : '复制链接'">
+      <i
+        nz-icon
+        [nzType]="copyUrlDone ? 'check' : 'copy'"
+        nzTheme="outline"
+        (click)="copyUrl($event, 2)"
+        (mouseout)="copyMouseout()"
+      >
+      </i>
+    </div>
+  </ng-template>
+  <ng-template #actionEdit>
+    <div nz-tooltip [nzTooltipTitle]="copyPathDone ? '复制成功' : '分享网站'">
+      <i
+        nz-icon
+        [nzType]="copyPathDone ? 'check' : 'share-alt'"
+        nzTheme="outline"
+        (click)="copyUrl($event, 1)"
+        (mouseout)="copyMouseout()"
+      >
+      </i>
+    </div>
+  </ng-template>
+  <ng-template #actionEllipsis>
+    <i nz-icon nzType="ellipsis" nz-dropdown [nzDropdownMenu]="menu" *ngIf="isLogin"></i>
+
+    <nz-dropdown-menu #menu="nzDropdownMenu">
+      <ul nz-menu nzSelectable>
+        <li nz-menu-item (click)="clickEdit()">编辑</li>
+        <a
+          nz-popconfirm
+          nzPopconfirmPlacement="rightTop"
+          nzOkType="danger"
+          nzPopconfirmTitle="您确定要删除吗?"
+          nzPopconfirmPlacement="bottom"
+          (nzOnConfirm)="confirmDel($event)"
+        >
+          <li nz-menu-item nzDanger>删除</li>
+        </a>
+      </ul>
+    </nz-dropdown-menu>
+  </ng-template>
+</div>
+
+<ng-template #card>
+  <ng-content></ng-content>
+</ng-template>
+
+<nz-modal
+  [(nzVisible)]="showModal"
+  nzTitle="修改"
+  (nzOnCancel)="toggleModal()"
+  (nzOnOk)="handleOk()"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="validateForm" (ngSubmit)="handleOk()">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4" nzRequired>网站名称</nz-form-label>
+        <nz-form-control [nzSpan]="20" nzErrorTip="请输入名称">
+          <input formControlName="title" nz-input placeholder="发现导航" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4" nzRequired>网站链接</nz-form-label>
+        <nz-form-control [nzSpan]="20">
+          <input formControlName="url" nz-input placeholder="https://nav3.cn" (blur)="onUrlBlur($event)" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4">图标地址</nz-form-label>
+        <nz-form-control [nzSpan]="20">
+          <nz-input-group [nzPrefix]="prefixIcon">
+            <input formControlName="icon" nz-input placeholder="https://example.com/favicon.png" (blur)="onIconBlur($event)" />
+          </nz-input-group>
+
+          <ng-template #prefixIcon>
+            <app-logo [src]="iconUrl" [size]="25" *ngIf="iconUrl"></app-logo>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="4">网站描述</nz-form-label>
+        <nz-form-control [nzSpan]="20">
+          <textarea
+            formControlName="desc"
+            placeholder="发现导航, 精选实用导航网站"
+            nz-input
+            [nzAutosize]="{ minRows: 3, maxRows: 5 }"
+          >
+          </textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

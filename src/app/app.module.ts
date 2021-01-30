@@ -1,4 +1,5 @@
 // Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+// See https://github.com/xjh22222228/nav
 
 import { BrowserModule } from '@angular/platform-browser'
 import { NgModule } from '@angular/core'
@@ -20,6 +21,15 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar'
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm'
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzCardModule } from 'ng-zorro-antd/card'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzGridModule } from 'ng-zorro-antd/grid'
+import { NzLayoutModule } from 'ng-zorro-antd/layout'
+import { NzMenuModule } from 'ng-zorro-antd/menu'
+import { NzTableModule } from 'ng-zorro-antd/table'
+import { NzTabsModule } from 'ng-zorro-antd/tabs'
+import { NzTagModule } from 'ng-zorro-antd/tag'
+import { DragDropModule } from '@angular/cdk/drag-drop'
 
 // components
 import { AppComponent } from './app.component'
@@ -27,9 +37,10 @@ import { AppComponent } from './app.component'
 // views
 import LightComponent from '../view/index/light/index.component'
 import SimComponent from '../view/index/sim/index.component'
+import AdminComponent from '../view/admin/index.component'
+import SideComponent from '../view/index/side/index.component'
 import WebpComponent from '../view/app/default/app.component'
 import { FixbarComponent } from '../components/fixbar/index.component'
-import { MultipleSiteComponent } from '../components/multiple-site/index.component'
 import { FooterComponent } from '../components/footer/footer.component'
 import { IconGitComponent } from '../components/icon-git/icon-git.component'
 import { NoDataComponent } from '../components/no-data/no-data.component'
@@ -42,7 +53,7 @@ import zh from '@angular/common/locales/zh';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LogoComponent } from '../components/logo/logo.component';
-import { DropdownComponent } from '../components/dropdown/dropdown.component'
+import { CardComponent } from '../components/card/index.component'
 
 registerLocaleData(zh);
 
@@ -52,12 +63,23 @@ const appRoutes: Routes = [
     component: SimComponent,
   },
   { 
+    path: 'side',
+    component: SideComponent,
+  },
+  { 
     path: 'light',
     component: LightComponent,
+    data: {
+      renderLinear: true
+    }
   },
   { 
     path: 'app',
     component: WebpComponent,
+  },
+  { 
+    path: 'admin',
+    component: AdminComponent,
   },
   {
     path: '**',
@@ -65,22 +87,22 @@ const appRoutes: Routes = [
   },
 ]
 
-
 @NgModule({
   declarations: [
     AppComponent,
     LightComponent,
     SimComponent,
+    SideComponent,
+    AdminComponent,
     WebpComponent,
     FixbarComponent,
-    MultipleSiteComponent,
     FooterComponent,
     IconGitComponent,
     NoDataComponent,
     SearchEngineComponent,
     CreateComponent,
     LogoComponent,
-    DropdownComponent
+    CardComponent
   ],
   imports: [
     NzModalModule,
@@ -97,6 +119,15 @@ const appRoutes: Routes = [
     NzPopconfirmModule,
     NzDropDownModule,
     NzToolTipModule,
+    NzCardModule,
+    NzIconModule,
+    NzGridModule,
+    NzLayoutModule,
+    NzMenuModule,
+    NzTableModule,
+    NzTabsModule,
+    NzTagModule,
+    DragDropModule,
     BrowserModule,
     FormsModule,
     RouterModule.forRoot(

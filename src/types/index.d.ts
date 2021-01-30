@@ -1,22 +1,34 @@
 // Copyright @ 2018-2021 xiejiahe. All rights reserved. MIT license.
+// See https://github.com/xjh22222228/nav
 
 export type ThemeType =
   | 'Light'
   | 'Sim'
+  | 'Side'
+
+export interface ITagProp {
+  [tagName: string]: {
+    color: string
+    createdAt: string
+    desc?: string
+  }
+}
 
 export interface INavFourProp {
   icon?: string | null
+  createdAt?: string
   name: string
   desc: string
-  url?: string
+  url: string
   urls?: {
-    [key: string]: string
+    [tagName: string]: string
   }
 }
 
 export interface INavThreeProp {
   title?: string
   icon?: string | null
+  createdAt?: string
   showSideIcon?: boolean
   collapsed?: boolean
   nav: INavFourProp[]
@@ -25,6 +37,7 @@ export interface INavThreeProp {
 export interface INavTwoProp {
   title?: string
   icon?: string | null
+  createdAt?: string
   collapsed?: boolean
   nav: INavThreeProp[]
 }
@@ -33,6 +46,7 @@ export interface INavProps extends Object {
   title: string
   id?: number
   icon?: string | null
+  createdAt?: string
   nav: INavTwoProp[]
 }
 
